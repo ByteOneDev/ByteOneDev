@@ -19,7 +19,7 @@ I'm a passionate Computer sciences student with a deep interest in science, tech
 - Brain-computer interfaces 🧠💻
 - Renewable energy technologies 🌿⚡
 - IoT and smart systems 🌐
-- Diy and 
+- Diy and electronics
 
 ## Current Focus 📚
 
