@@ -1,0 +1,9 @@
+{
+  "_comment": "Données de repli utilisées quand l'API GitHub est injoignable (rate limit, réseau restreint). Les vraies données de l'API ont toujours la priorité.",
+  "repos": {
+    "Cinecrique": {"desc": "Critiques et suivi de films — application web.", "lang": "JavaScript", "stars": 1, "forks": 0, "pushed": "2026-07-31"},
+    "TRI-FI_V1": {"desc": "Première version de mon logiciel de tri de fichiers.", "lang": "Python", "stars": 1, "forks": 0, "pushed": "2026-04-14"},
+    "Bot-discord": {"desc": "Mon bot Discord maison.", "lang": "Python", "stars": 1, "forks": 0, "pushed": "2026-09-02"},
+    "design-system": {"desc": "Mon système de design réutilisable.", "lang": "TypeScript", "stars": 0, "forks": 0, "pushed": "2026-09-02"}
+  }
+}

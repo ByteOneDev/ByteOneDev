@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="128" viewBox="0 0 400 128" role="img" font-family="'Segoe UI',Ubuntu,Helvetica,Arial,sans-serif"><defs></defs><style>
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px);} to {opacity:1; transform:translateY(0);} }
+@keyframes grow { from { transform:scaleX(0);} to {transform:scaleX(1);} }
+@keyframes float { 0%,100% { transform:translateY(0);} 50% { transform:translateY(-5px);} }
+.fu { animation: fadeUp .7s ease both; }
+.bar { transform-origin: left center; animation: grow 1.1s cubic-bezier(.22,1,.36,1) both; }
+text { dominant-baseline: middle; }
+
+    .n { font-size: 16px; font-weight: 700; }
+    .d { font-size: 12px; }
+    .m { font-size: 12px; }
+    </style><rect x="0.5" y="0.5" width="399" height="127" rx="10" fill="#ffffff" stroke="#d0d7de"/><text x="24" y="30" font-size="15" fill="#59636e">📁</text><text class="n fu" x="46" y="30" fill="#0969da">Cinecrique</text><text class="d fu" x="24" y="58" fill="#59636e" style="animation-delay:0.10s">Critiques et suivi de films — application web.</text><circle cx="30" cy="102" r="6" fill="#f1e05a"/><text class="m" x="42" y="102" fill="#1f2328">JavaScript</text><text class="m" x="120" y="102" fill="#59636e">★ 1</text><text class="m" x="160" y="102" fill="#59636e">⑂ 0</text><text class="m" x="376" y="102" fill="#59636e" text-anchor="end">31/07/2026</text></svg>
