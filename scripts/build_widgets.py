@@ -315,7 +315,8 @@ def build_chess(theme_name, accounts):
     """Un panneau par compte, côte à côte. Fonctionne de 1 à 3 comptes."""
     t = THEMES[theme_name]
     n = max(len(accounts), 1)
-    PANEL_W, GAP, PAD = 400, 20, 20
+    # un compte seul s'élargit pour retomber sur 495 px, la largeur des widgets de stats
+    PANEL_W, GAP, PAD = (455 if n == 1 else 400), 20, 20
     W = PAD * 2 + PANEL_W * n + GAP * (n - 1)
     max_rows = max((len(a["rows"]) for a in accounts), default=1) or 1
     PANEL_H = 46 + max_rows * 42 + 10

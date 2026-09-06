@@ -108,11 +108,10 @@ des parties de blitz à des heures indécentes.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/chess-dark.svg">
-  <img alt="Mes ratings d'échecs sur mes deux comptes Chess.com" src="assets/chess-light.svg" width="100%">
+  <img alt="Mes ratings d'échecs" src="assets/chess-light.svg" width="495">
 </picture>
 
-<sub>Deux comptes, deux ambiances : un pour progresser sérieusement, un pour perdre contre mes amis.
-Les ratings sont récupérés directement sur l'API Chess.com par une GitHub Action, sans service tiers —
+<sub>Ratings récupérés directement sur l'API Chess.com par une GitHub Action, sans service tiers —
 le code tient dans <a href="scripts/build_widgets.py"><code>scripts/build_widgets.py</code></a>.</sub>
 
 ---
@@ -146,7 +145,7 @@ qui déraille : ma boîte mail est ouverte.
 
 - 🌐 **Site** — [matt0967.github.io](https://matt0967.github.io/)
 - 📫 **Mail** — [perezmatthieu1@gmail.com](mailto:perezmatthieu1@gmail.com)
-- ♟️ **Chess.com** — [@Training_Chess-Matou](https://www.chess.com/member/Training_Chess-Matou) (sérieux) · [@Mattou2](https://www.chess.com/member/Mattou2) (entre potes)
+- ♟️ **Chess.com** — [@Training_Chess-Matou](https://www.chess.com/member/Training_Chess-Matou)
 
 <br>
 
