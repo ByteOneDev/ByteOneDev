@@ -6,7 +6,7 @@
 <p align="center">
   <a href="https://matt0967.github.io/"><img alt="Site perso" src="https://img.shields.io/badge/Site_perso-matt0967.github.io-58a6ff?style=for-the-badge&logo=githubpages&logoColor=white"></a>
   <a href="mailto:perezmatthieu1@gmail.com"><img alt="Email" src="https://img.shields.io/badge/Me_écrire-perezmatthieu1-d14836?style=for-the-badge&logo=gmail&logoColor=white"></a>
-  <a href="https://lichess.org/@/matt0967"><img alt="Lichess" src="https://img.shields.io/badge/Lichess-@matt0967-a371f7?style=for-the-badge&logo=lichess&logoColor=white"></a>
+  <a href="https://www.chess.com/member/Training_Chess-Matou"><img alt="Chess.com" src="https://img.shields.io/badge/Chess.com-Training__Chess--Matou-81b64c?style=for-the-badge&logo=chessdotcom&logoColor=white"></a>
 </p>
 
 ---
@@ -108,10 +108,12 @@ des parties de blitz à des heures indécentes.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/chess-dark.svg">
-  <img alt="Mes ratings d'échecs" src="assets/chess-light.svg" width="495">
+  <img alt="Mes ratings d'échecs sur mes deux comptes Chess.com" src="assets/chess-light.svg" width="100%">
 </picture>
 
-<sub>Ratings récupérés directement sur l'API Lichess par une GitHub Action, sans service tiers. Le code tient dans <a href="scripts/build_widgets.py"><code>scripts/build_widgets.py</code></a>.</sub>
+<sub>Deux comptes, deux ambiances : un pour progresser sérieusement, un pour perdre contre mes amis.
+Les ratings sont récupérés directement sur l'API Chess.com par une GitHub Action, sans service tiers —
+le code tient dans <a href="scripts/build_widgets.py"><code>scripts/build_widgets.py</code></a>.</sub>
 
 ---
 
@@ -144,7 +146,7 @@ qui déraille : ma boîte mail est ouverte.
 
 - 🌐 **Site** — [matt0967.github.io](https://matt0967.github.io/)
 - 📫 **Mail** — [perezmatthieu1@gmail.com](mailto:perezmatthieu1@gmail.com)
-- ♟️ **Lichess** — [@matt0967](https://lichess.org/@/matt0967)
+- ♟️ **Chess.com** — [@Training_Chess-Matou](https://www.chess.com/member/Training_Chess-Matou) (sérieux) · [@Mattou2](https://www.chess.com/member/Mattou2) (entre potes)
 
 <br>
 

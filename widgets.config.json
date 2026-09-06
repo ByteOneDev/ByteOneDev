@@ -2,9 +2,19 @@
   "display_name": "Matthieu",
   "tagline": "Étudiant en informatique & réseaux",
   "subtitle": "Systèmes, réseaux, électronique — et beaucoup trop d'échecs",
-  "lichess_username": "matt0967",
-  "chesscom_username": "",
   "github_username": "ByteOneDev",
+  "chess_accounts": [
+    {
+      "platform": "chesscom",
+      "username": "Training_Chess-Matou",
+      "label": "Compétitif"
+    },
+    {
+      "platform": "chesscom",
+      "username": "Mattou2",
+      "label": "Entre potes"
+    }
+  ],
   "featured_repos": [
     "Cinecrique",
     "TRI-FI_V1",

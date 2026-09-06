@@ -86,62 +86,90 @@ CHESS_LABELS = {
     "blitz": "Blitz",
     "rapid": "Rapide",
     "classical": "Classique",
+    "daily": "Journalier",
     "puzzle": "Puzzles",
 }
 
+MAX_PERFS = 3  # nombre de cadences affichées par compte
+
 
 def fetch_lichess(username):
-    """Retourne [(discipline, elo, parties, progression), ...] trié par nb de parties."""
-    if not username:
-        return None
+    """[{label, rating, games, prog, provisional}, ...] trié par nombre de parties."""
     data = fetch_json(f"https://lichess.org/api/user/{username}")
     if not data or "perfs" not in data:
         return None
     rows = []
-    for key in ("bullet", "blitz", "rapid", "classical", "puzzle"):
+    for key in ("bullet", "blitz", "rapid", "classical"):
         perf = data["perfs"].get(key)
-        if not perf or not perf.get("games") and key != "puzzle":
-            continue
-        rating = perf.get("rating")
-        if not rating:
+        if not perf or not perf.get("games"):
             continue
         rows.append(
             {
                 "label": CHESS_LABELS[key],
-                "rating": rating,
-                "games": perf.get("games", 0) or perf.get("runs", 0),
+                "rating": perf.get("rating", 0),
+                "games": perf.get("games", 0),
                 "prog": perf.get("prog", 0),
                 "provisional": perf.get("prov", False),
             }
         )
     rows.sort(key=lambda r: r["games"], reverse=True)
-    return rows[:4] or None
+    return rows[:MAX_PERFS] or None
 
 
 def fetch_chesscom(username):
-    if not username:
-        return None
     data = fetch_json(f"https://api.chess.com/pub/player/{username}/stats")
     if not data:
         return None
     rows = []
-    for key, label in (("chess_bullet", "Bullet"), ("chess_blitz", "Blitz"), ("chess_rapid", "Rapide"), ("chess_daily", "Journalier")):
+    for key in ("chess_bullet", "chess_blitz", "chess_rapid", "chess_daily"):
         perf = data.get(key)
         if not perf or "last" not in perf:
             continue
         rec = perf.get("record", {})
         games = sum(rec.get(k, 0) for k in ("win", "loss", "draw"))
+        current = perf["last"].get("rating", 0)
+        best = perf.get("best", {}).get("rating", 0)
         rows.append(
             {
-                "label": label,
-                "rating": perf["last"].get("rating", 0),
+                "label": CHESS_LABELS[key.replace("chess_", "")],
+                "rating": current,
                 "games": games,
-                "prog": 0,
+                # Chess.com n'expose pas de progression récente : on affiche
+                # l'écart au record personnel, qui est l'info la plus proche.
+                "prog": current - best if best else 0,
                 "provisional": False,
             }
         )
     rows.sort(key=lambda r: r["games"], reverse=True)
-    return rows[:4] or None
+    return rows[:MAX_PERFS] or None
+
+
+PLATFORMS = {
+    "lichess": ("Lichess", fetch_lichess, "https://lichess.org/@/{u}"),
+    "chesscom": ("Chess.com", fetch_chesscom, "https://www.chess.com/member/{u}"),
+}
+
+
+def fetch_chess_accounts(accounts):
+    """Résout chaque compte configuré ; un compte en échec reste dans la liste
+    avec rows=None, pour afficher un panneau dégradé plutôt que de disparaître."""
+    resolved = []
+    for acc in accounts:
+        platform = acc.get("platform", "chesscom")
+        name, fetcher, _ = PLATFORMS.get(platform, PLATFORMS["chesscom"])
+        username = acc.get("username", "")
+        rows = fetcher(username) if username else None
+        if rows is None:
+            print(f"  ! aucune donnée pour {name}/@{username}", file=sys.stderr)
+        resolved.append(
+            {
+                "username": username,
+                "label": acc.get("label", ""),
+                "platform_name": name,
+                "rows": rows or [],
+            }
+        )
+    return resolved
 
 
 SEED = json.loads((ROOT / "scripts" / "seed.json").read_text(encoding="utf-8")) if (ROOT / "scripts" / "seed.json").exists() else {}
@@ -283,61 +311,87 @@ def build_header(theme_name):
 # Widget 2 : échecs
 # --------------------------------------------------------------------------- #
 
-def build_chess(theme_name, rows, platform, username):
+def build_chess(theme_name, accounts):
+    """Un panneau par compte, côte à côte. Fonctionne de 1 à 3 comptes."""
     t = THEMES[theme_name]
-    W = 495
-    H = 92 + max(len(rows), 1) * 42
+    n = max(len(accounts), 1)
+    PANEL_W, GAP, PAD = 400, 20, 20
+    W = PAD * 2 + PANEL_W * n + GAP * (n - 1)
+    max_rows = max((len(a["rows"]) for a in accounts), default=1) or 1
+    PANEL_H = 46 + max_rows * 42 + 10
+    H = 56 + PANEL_H + 26
     css = """
     .h { font-size: 15px; font-weight: 600; }
+    .u { font-size: 13px; font-weight: 600; }
     .l { font-size: 13px; font-weight: 500; }
     .v { font-size: 15px; font-weight: 700; }
     .s { font-size: 11px; }
     """
     out = [svg_open(W, H, "", css)]
     out.append(card(W, H, t))
-    out.append(f'<text class="h fu" x="25" y="32" fill="{t["accent"]}">♟ Échecs — {escape(platform)}</text>')
-    if username:
-        out.append(
-            f'<text class="s fu" x="{W - 25}" y="32" fill="{t["muted"]}" text-anchor="end">@{escape(username)}</text>'
-        )
-
-    if not rows:
-        out.append(
-            f'<text class="l fu" x="25" y="70" fill="{t["muted"]}">Compte non configuré — '
-            f'renseigne ton pseudo dans widgets.config.json</text>'
-        )
-        out.append("</svg>")
-        return "".join(out)
-
-    # échelle des barres : 800 (débutant) → 2400 (maître)
-    lo, hi = 800, 2400
-    bar_x, bar_w = 190, 220
-    y = 68
-    for i, r in enumerate(rows):
-        delay = 0.12 * i
-        frac = max(0.04, min(1.0, (r["rating"] - lo) / (hi - lo)))
-        out.append(
-            f'<g class="fu" style="animation-delay:{delay:.2f}s">'
-            f'<text class="l" x="25" y="{y}" fill="{t["text"]}">{escape(r["label"])}</text>'
-            f'<text class="s" x="25" y="{y + 16}" fill="{t["muted"]}">{r["games"]} parties</text>'
-            f'<rect x="{bar_x}" y="{y - 5}" width="{bar_w}" height="10" rx="5" fill="{t["track"]}"/>'
-            f'<rect class="bar" x="{bar_x}" y="{y - 5}" width="{bar_w * frac:.1f}" height="10" rx="5" '
-            f'fill="{t["accent"]}" style="animation-delay:{delay + 0.2:.2f}s"/>'
-            f'<text class="v" x="{W - 25}" y="{y}" fill="{t["text"]}" text-anchor="end">{r["rating"]}'
-            f'{"?" if r["provisional"] else ""}</text>'
-        )
-        if r["prog"]:
-            color = t["good"] if r["prog"] > 0 else t["warn"]
-            sign = "▲" if r["prog"] > 0 else "▼"
-            out.append(
-                f'<text class="s" x="{W - 25}" y="{y + 16}" fill="{color}" text-anchor="end">'
-                f'{sign} {abs(r["prog"])}</text>'
-            )
-        out.append("</g>")
-        y += 42
-
+    platforms = " / ".join(dict.fromkeys(a["platform_name"] for a in accounts)) or "Chess.com"
+    out.append(f'<text class="h fu" x="{PAD + 5}" y="32" fill="{t["accent"]}">♟ Échecs — {escape(platforms)}</text>')
     stamp = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M UTC")
-    out.append(f'<text class="s" x="25" y="{H - 16}" fill="{t["muted"]}">Mis à jour le {stamp}</text>')
+    out.append(
+        f'<text class="s fu" x="{W - PAD - 5}" y="32" fill="{t["muted"]}" text-anchor="end">'
+        f'Mis à jour le {stamp}</text>'
+    )
+
+    lo, hi = 400, 2400  # échelle des barres : débutant → maître
+    for i, acc in enumerate(accounts):
+        px = PAD + i * (PANEL_W + GAP)
+        py = 56
+        d0 = 0.1 * i
+        out.append(f'<g class="fu" style="animation-delay:{d0:.2f}s">')
+        out.append(
+            f'<rect x="{px + 0.5}" y="{py + 0.5}" width="{PANEL_W - 1}" height="{PANEL_H - 1}" rx="8" '
+            f'fill="{t["panel"]}" stroke="{t["border"]}"/>'
+        )
+        out.append(
+            f'<text class="u" x="{px + 16}" y="{py + 24}" fill="{t["text"]}">@{escape(acc["username"])}</text>'
+        )
+        if acc["label"]:
+            lw = 14 + len(acc["label"]) * 6.6
+            out.append(
+                f'<rect x="{px + PANEL_W - 16 - lw:.0f}" y="{py + 12}" width="{lw:.0f}" height="24" rx="12" '
+                f'fill="{t["bg"]}" stroke="{t["border"]}"/>'
+                f'<text class="s" x="{px + PANEL_W - 16 - lw / 2:.0f}" y="{py + 24}" fill="{t["muted"]}" '
+                f'text-anchor="middle">{escape(acc["label"])}</text>'
+            )
+
+        if not acc["rows"]:
+            out.append(
+                f'<text class="s" x="{px + 16}" y="{py + 62}" fill="{t["muted"]}">'
+                f'Aucune partie classée trouvée pour ce compte.</text>'
+            )
+            out.append("</g>")
+            continue
+
+        y = py + 60
+        bar_x, bar_w = px + 106, 194
+        for j, r in enumerate(acc["rows"]):
+            delay = d0 + 0.12 * j
+            frac = max(0.03, min(1.0, (r["rating"] - lo) / (hi - lo)))
+            out.append(
+                f'<text class="l" x="{px + 16}" y="{y}" fill="{t["text"]}">{escape(r["label"])}</text>'
+                f'<text class="s" x="{px + 16}" y="{y + 16}" fill="{t["muted"]}">{r["games"]} parties</text>'
+                f'<rect x="{bar_x}" y="{y - 5}" width="{bar_w}" height="10" rx="5" fill="{t["track"]}"/>'
+                f'<rect class="bar" x="{bar_x}" y="{y - 5}" width="{bar_w * frac:.1f}" height="10" rx="5" '
+                f'fill="{t["accent"]}" style="animation-delay:{delay + 0.2:.2f}s"/>'
+                f'<text class="v" x="{px + PANEL_W - 16}" y="{y}" fill="{t["text"]}" text-anchor="end">'
+                f'{r["rating"]}{"?" if r["provisional"] else ""}</text>'
+            )
+            if r["prog"]:
+                color = t["good"] if r["prog"] > 0 else t["muted"]
+                # écart au record perso : 0 = record actuellement égalé
+                txt = f'▲ {r["prog"]}' if r["prog"] > 0 else f'record −{abs(r["prog"])}'
+                out.append(
+                    f'<text class="s" x="{px + PANEL_W - 16}" y="{y + 16}" fill="{color}" '
+                    f'text-anchor="end">{txt}</text>'
+                )
+            y += 42
+        out.append("</g>")
+
     out.append("</svg>")
     return "".join(out)
 
@@ -414,20 +468,9 @@ def main():
         write(f"header-{theme}.svg", build_header(theme))
 
     print("Échecs…")
-    lichess_user = CONFIG.get("lichess_username", "")
-    chesscom_user = CONFIG.get("chesscom_username", "")
-    rows = fetch_lichess(lichess_user)
-    platform, username = "Lichess", lichess_user
-    if not rows:
-        rows = fetch_chesscom(chesscom_user)
-        if rows:
-            platform, username = "Chess.com", chesscom_user
-    if not rows:
-        print("  ! aucune donnée d'échecs récupérée, widget en mode dégradé", file=sys.stderr)
-        platform, username = "Lichess", lichess_user
-        rows = []
+    accounts = fetch_chess_accounts(CONFIG.get("chess_accounts", []))
     for theme in THEMES:
-        write(f"chess-{theme}.svg", build_chess(theme, rows, platform, username))
+        write(f"chess-{theme}.svg", build_chess(theme, accounts))
 
     print("Projets…")
     repos = fetch_repos(CONFIG["github_username"], CONFIG.get("featured_repos", []))

@@ -17,8 +17,10 @@ disparaître le profil sans le moindre avertissement.
 | Snake des contributions | action `Platane/snk`, publiée sur la branche `output` | chaque nuit — `.github/workflows/snake.yml` |
 | Stats / langages / streak | services externes (Vercel) | à chaque chargement de la page |
 
-Tout ce qui est configurable vit dans **`widgets.config.json`** : pseudo Lichess ou
-Chess.com, nom affiché, accroche, et la liste des 4 projets mis en avant. Modifier ce
+Tout ce qui est configurable vit dans **`widgets.config.json`** : nom affiché, accroche,
+liste des 4 projets mis en avant, et `chess_accounts` — autant de comptes que voulu, chacun
+avec sa plateforme (`chesscom` ou `lichess`), son pseudo et son label. Le widget crée un
+panneau par compte et s'élargit tout seul. Modifier ce
 fichier et pousser suffit : l'Action régénère les SVG automatiquement.
 
 Pour tester en local :
