@@ -144,7 +144,7 @@ qui déraille : ma boîte mail est ouverte.
 
 - 🌐 **Site** — [matt0967.github.io](https://matt0967.github.io/)
 - 📫 **Mail** — [perezmatthieu1@gmail.com](mailto:perezmatthieu1@gmail.com)
-- ♟️ **Chess.com** — [@matt0967]([https://lichess.org/@/matt0967](https://www.chess.com/member/mattou2))
+- ♟️ **Chess.com** — [Mattou2]([https://lichess.org/@/matt0967](https://www.chess.com/member/mattou2))
 
 <br>
 
